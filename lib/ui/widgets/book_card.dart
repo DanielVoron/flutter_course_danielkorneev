@@ -54,7 +54,7 @@ class BookCard extends StatelessWidget {
 
                     // здесь должна передаваться первая буква названия
                     child: Text(
-                      book.title[0],
+                      book.title![0],
                       style: TextStyle(
                         fontSize: 50,
                         fontWeight: FontWeight.bold,
@@ -103,7 +103,7 @@ class BookCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    book.title,
+                    book.title ?? 'Без названия',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

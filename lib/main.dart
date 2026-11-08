@@ -1,17 +1,24 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_course_hws_korneevdaniel/domain/entities/bloc/books_bloc.dart';
+import 'package:flutter_course_hws_korneevdaniel/domain/entities/bloc/books_events.dart';
 import 'package:flutter_course_hws_korneevdaniel/firebase_options.dart';
 import 'package:flutter_course_hws_korneevdaniel/ui/screens/auth_screen.dart';
 import 'package:flutter_course_hws_korneevdaniel/ui/screens/catalog_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(
+    BlocProvider(
+      create: (_) => BooksBloc()..add(BooksLoadRequested()),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

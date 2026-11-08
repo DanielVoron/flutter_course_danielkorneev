@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_course_hws_korneevdaniel/domain/entities/book.dart';
 
+class AddBookScreen extends StatefulWidget {
+  final Book? book;
 
-import 'package:flutter_course_hws_korneevdaniel/domain/entities/book.dart';class AddBookScreen extends StatefulWidget {
-  const AddBookScreen({super.key});
+  const AddBookScreen({super.key, this.book});
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -28,21 +30,37 @@ class _AddBookScreenState extends State<AddBookScreen> {
     Color.fromARGB(255, 171, 88, 204),
   ];
 
-  Future<void> _save() async {
+ @override
+  void initState() {
+    super.initState();
+    final book = widget.book;
+    if (book != null) {
+      _titleController.text = book.title ?? '';
+      _authorController.text = book.author ?? '';
+      _yearController.text = book.year.toString();
+      _selectedCategories.addAll(book.categories);
+      _color = book.covercolor;
+    }
+  }
+
+   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
       final book = Book(
-        id: '',
+        id: widget.book?.id ?? '',
         title: _titleController.text.trim(),
         author: _authorController.text.trim(),
         year: int.tryParse(_yearController.text) ?? 0,
         categories: _selectedCategories.toList(),
         covercolor: _color,
       );
-      await FirebaseFirestore.instance
-        .collection('books')
-        .add(book.toJson());
+      final collection = FirebaseFirestore.instance.collection('books');
+      if (widget.book != null) {
+        await collection.doc(widget.book!.id).update(book.toJson());
+      } else {
+        await collection.add(book.toJson());
+      }
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
@@ -55,13 +73,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
+    final isEditing = widget.book != null;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 230, 226, 221),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Новая книга'),
+        title: Text(isEditing ? 'Редактирование' : 'Новая книга'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
